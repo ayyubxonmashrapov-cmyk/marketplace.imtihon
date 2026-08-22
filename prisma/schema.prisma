@@ -39,13 +39,15 @@ enum AdminRole {
 }
 
 model Master {
-  id            Int        @id @default(autoincrement())
-  specDirection Categories
-  experience    Int?
-  address       Region
+  id         Int    @id @default(autoincrement())
+  experience Int?
+  region     Region
 
-  userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId         Int
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  order          Order[]
+  raiting        Raiting[]
+  specCategories SpecCategory[]
 }
 
 enum Region {
@@ -65,9 +67,26 @@ enum Region {
   Qoraqalpogiston_Respublikasi
 }
 
-enum Categories {
-  Elektrik
-  Santexnik
+model Category {
+  id   Int    @id @default(autoincrement())
+  name String
+}
+
+model SpecCategory {
+  id         Int @id @default(autoincrement())
+  categoryId Int
+  experience Int
+  masterId   Int
+
+  master Master @relation(fields: [masterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model OrderCategory {
+  id         Int @id @default(autoincrement())
+  categoryId Int
+  orderId    Int
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Customer {
@@ -75,5 +94,67 @@ model Customer {
   userId  Int
   address String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  order   Order[]
+  raiting Raiting[]
+}
+
+model Order {
+  id                Int               @id @default(autoincrement())
+  problem           String
+  orderStatus       orderStatus
+  orderMatserStatus orderMatserStatus
+  region            Region
+  detailedAddress   String
+  masterId          Int?
+  customerId        Int
+
+  master        Master?         @relation(fields: [masterId], references: [id])
+  cusotmer      Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  payment       Payment?
+  orderCategory OrderCategory[]
+}
+
+enum orderStatus {
+  BOSH
+  JARAYONDA
+  BAJARILDI
+  BEKOR_QILINDI
+  NIZOLI_HOLAT
+}
+
+enum orderMatserStatus {
+  USTALAR_TAKLIF_BERMOQDA
+  USTA_TANLANDI
+  USTA_QABUL_QILDI
+}
+
+model Payment {
+  id      Int           @id @default(autoincrement())
+  orderId Int           @unique
+  status  paymentStatus
+  type    paymentType
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+enum paymentStatus {
+  PAID
+  NOT_PAID
+}
+
+enum paymentType {
+  CARD
+  CASH
+}
+
+model Raiting {
+  id         Int    @id @default(autoincrement())
+  stars      Int    @db.SmallInt
+  comment    String
+  masterId   Int
+  customerId Int
+
+  master   Master   @relation(fields: [masterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
