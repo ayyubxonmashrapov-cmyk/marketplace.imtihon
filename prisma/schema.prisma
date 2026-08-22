@@ -40,7 +40,6 @@ enum AdminRole {
 
 model Master {
   id         Int    @id @default(autoincrement())
-  experience Int?
   region     Region
 
   userId         Int
