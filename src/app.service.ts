@@ -18,7 +18,7 @@ export class App {
       transform : true
     }));
 
-    app.use(helmet)    
+    app.use(helmet())    
 
     app.setGlobalPrefix(prefix)
 
