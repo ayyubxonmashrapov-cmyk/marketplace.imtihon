@@ -15,7 +15,7 @@ datasource db {
 
 model User {
   id             Int     @id @default(autoincrement())
-  fullName       String
+  fullName       String?
   phone          String  @unique
   hashedPassword String
   imageUrl       String?
@@ -27,7 +27,7 @@ model User {
 
 model Admin {
   id     Int       @id @default(autoincrement())
-  role   AdminRole
+  role   AdminRole @default(ADMIN)
   userId Int
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)

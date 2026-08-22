@@ -19,7 +19,7 @@ CREATE TYPE "paymentType" AS ENUM ('CARD', 'CASH');
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
-    "fullName" TEXT NOT NULL,
+    "fullName" TEXT,
     "phone" TEXT NOT NULL,
     "hashedPassword" TEXT NOT NULL,
     "imageUrl" TEXT,
@@ -30,7 +30,7 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Admin" (
     "id" SERIAL NOT NULL,
-    "role" "AdminRole" NOT NULL,
+    "role" "AdminRole" NOT NULL DEFAULT 'ADMIN',
     "userId" INTEGER NOT NULL,
 
     CONSTRAINT "Admin_pkey" PRIMARY KEY ("id")
