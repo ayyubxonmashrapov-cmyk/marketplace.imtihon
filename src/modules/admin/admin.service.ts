@@ -9,9 +9,13 @@ export class AdminService {
     constructor(private readonly prisma: PrismaService){ }
 
     async create(dto: CreateAdminDto) {
-        const { phone, password } = dto;
+        const { password } = dto;
 
-        const isExistPhone = await this.prisma.user.findFirst({ where: { phone : phone.startsWith('+') ? phone : '+' + phone} })
+        let phone1 = dto.phone
+
+        const phone = phone1.startsWith('+') ? phone1 : '+' + phone1
+
+        const isExistPhone = await this.prisma.user.findFirst({ where: { phone } })
 
         if (isExistPhone){
             throw new ConflictException('Phone number is already exists')
@@ -24,7 +28,7 @@ export class AdminService {
                 phone,
                 hashedPassword,
             }
-        })
+        });
 
         await this.prisma.admin.create({
             data : {
