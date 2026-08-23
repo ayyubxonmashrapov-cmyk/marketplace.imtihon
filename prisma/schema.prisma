@@ -14,23 +14,32 @@ datasource db {
 }
 
 model User {
-  id             Int     @id @default(autoincrement())
-  fullName       String?
-  phone          String  @unique
-  hashedPassword String
-  imageUrl       String?
+  id             String   @id @default(uuid()) @db.Uuid
+  fullName       String?  @map("full_name")
+  phone          String   @unique
+  hashedPassword String   @map("hashed_password")
+  imageUrl       String?  @map("image_url")
+  createAt       DateTime @default(now()) @map("create_at") @db.Timestamptz(6)
+  updateAt       DateTime @updatedAt @map("update_at") @db.Timestamptz(6)
 
-  master   Master[]
-  admin    Admin[]
-  customer Customer[]
+  master           Master[]
+  admin            Admin[]
+  customer         Customer[]
+  platformUserRole PlatformUserRole[]
+
+  @@map("users")
 }
 
 model Admin {
-  id     Int       @id @default(autoincrement())
-  role   AdminRole @default(ADMIN)
-  userId Int
+  id       String    @id @default(uuid()) @db.Uuid
+  role     AdminRole @default(ADMIN)
+  userId   String    @map("user_id") @db.Uuid
+  createAt DateTime  @default(now()) @map("create_at") @db.Timestamptz(6)
+  updateAt DateTime  @updatedAt @map("update_at") @db.Timestamptz(6)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("admins")
 }
 
 enum AdminRole {
@@ -39,14 +48,18 @@ enum AdminRole {
 }
 
 model Master {
-  id         Int    @id @default(autoincrement())
-  region     Region
+  id     String @id @default(uuid()) @db.Uuid
+  region Region
 
-  userId         Int
+  userId         String         @map("user_id") @db.Uuid
   user           User           @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   order          Order[]
-  raiting        Raiting[]
+  raiting        Rating[]
   specCategories SpecCategory[]
+  createAt       DateTime       @default(now()) @map("create_at") @db.Timestamptz(6)
+  updateAt       DateTime       @updatedAt @map("update_at") @db.Timestamptz(6)
+
+  @@map("masters")
 }
 
 enum Region {
@@ -67,51 +80,69 @@ enum Region {
 }
 
 model Category {
-  id   Int    @id @default(autoincrement())
-  name String
+  id             String         @id @default(uuid()) @db.Uuid
+  name           String
+  specCategories SpecCategory[]
 }
 
 model SpecCategory {
-  id         Int @id @default(autoincrement())
-  categoryId Int
+  id         String   @id @default(uuid()) @db.Uuid
+  categoryId String   @map("category_id") @db.Uuid
   experience Int
-  masterId   Int
+  masterId   String   @map("master_id") @db.Uuid
+  createAt   DateTime @default(now()) @map("create_at") @db.Timestamptz(6)
+  updateAt   DateTime @updatedAt @map("update_at") @db.Timestamptz(6)
 
-  master Master @relation(fields: [masterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  master   Master   @relation(fields: [masterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("categories")
 }
 
 model OrderCategory {
-  id         Int @id @default(autoincrement())
-  categoryId Int
-  orderId    Int
+  id         String   @id @default(uuid()) @db.Uuid
+  categoryId String   @map("category_id") @db.Uuid
+  orderId    String   @map("order_id") @db.Uuid
+  createAt   DateTime @default(now()) @map("create_at") @db.Timestamptz(6)
+  updateAt   DateTime @updatedAt @map("update_at") @db.Timestamptz(6)
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("order_category")
 }
 
 model Customer {
-  id      Int     @id @default(autoincrement())
-  userId  Int
-  address String?
+  id       String   @id @default(uuid()) @db.Uuid
+  userId   String   @map("user_id") @db.Uuid
+  address  String?
+  createAt DateTime @default(now()) @map("create_at") @db.Timestamptz(6)
+  updateAt DateTime @updatedAt @map("updata_at") @db.Timestamptz(6)
 
-  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   order   Order[]
-  raiting Raiting[]
+  raiting Rating[]
+
+  @@map("customers")
 }
 
 model Order {
-  id                Int               @id @default(autoincrement())
+  id                String            @id @default(uuid()) @db.Uuid
   problem           String
-  orderStatus       orderStatus
-  orderMatserStatus orderMatserStatus
+  orderStatus       orderStatus       @map("order_status")
+  orderMatserStatus orderMatserStatus @map("order_master_status")
   region            Region
-  detailedAddress   String
-  masterId          Int?
-  customerId        Int
+  detailedAddress   String            @map("detail_address")
+  masterId          String?           @map("master_id") @db.Uuid
+  customerId        String            @map("customer_id") @db.Uuid
+  createAt          DateTime          @default(now()) @map("create_at") @db.Timestamptz(6)
+  updateAt          DateTime          @updatedAt @map("update_at") @db.Timestamptz(6)
 
   master        Master?         @relation(fields: [masterId], references: [id])
   cusotmer      Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   payment       Payment?
   orderCategory OrderCategory[]
+
+  @@map("orders")
 }
 
 enum orderStatus {
@@ -129,12 +160,16 @@ enum orderMatserStatus {
 }
 
 model Payment {
-  id      Int           @id @default(autoincrement())
-  orderId Int           @unique
-  status  paymentStatus
-  type    paymentType
+  id       String        @id @default(uuid()) @db.Uuid
+  orderId  String        @unique @map("order_id") @db.Uuid
+  status   paymentStatus
+  type     paymentType
+  createAt DateTime      @default(now()) @map("create_at") @db.Timestamptz(6)
+  updateAt DateTime      @updatedAt @map("update_at") @db.Timestamptz(6)
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("payments")
 }
 
 enum paymentStatus {
@@ -147,13 +182,29 @@ enum paymentType {
   CASH
 }
 
-model Raiting {
-  id         Int    @id @default(autoincrement())
-  stars      Int    @db.SmallInt
+model Rating {
+  id         String   @id @default(uuid()) @db.Uuid
+  stars      Int      @db.SmallInt
   comment    String
-  masterId   Int
-  customerId Int
+  masterId   String   @map("master_id") @db.Uuid
+  customerId String   @map("customer_id") @db.Uuid
+  createAt   DateTime @default(now()) @map("create_at") @db.Timestamptz(6)
+  updateAt   DateTime @updatedAt @map("update_at") @db.Timestamptz(6)
 
   master   Master   @relation(fields: [masterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("rating")
+}
+
+model PlatformUserRole {
+  userId    String   @map("user_id") @db.Uuid
+  roleCode  String   @map("role_code")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updateAt  DateTime @updatedAt @map("update_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@id([userId, roleCode])
+  @@map("platform_user_roles")
 }
