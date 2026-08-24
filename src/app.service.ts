@@ -3,6 +3,7 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { env } from "./core/config";
 import helmet from "helmet"
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
 @Injectable()
 export class App {
@@ -18,7 +19,20 @@ export class App {
       transform : true
     }));
 
-    app.use(helmet())    
+
+    const config = new DocumentBuilder()
+      .setTitle('marketplace backend')
+      .setDescription('online kerak usta topish uchun platforma')
+      .setVersion('1.0')
+      .addTag('marketplace')
+      .build()
+      
+    const documentFactory = () => SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup(`${prefix}/docs`, app, documentFactory) 
+
+    app.use(helmet())    //  headers ichida kelishi mumkin atakadan himoya, optional hamma funciyalari yoqiladi
+
+    app.enableCors('localhost:1001')      // qaysi api dan sorov kelishini cheklaydi 
 
     app.setGlobalPrefix(prefix)
 

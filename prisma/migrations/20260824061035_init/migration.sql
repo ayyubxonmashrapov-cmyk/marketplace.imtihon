@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "userStatus" AS ENUM ('ACTIVE', 'INACTIVE', 'SUSPENDED');
+
+-- CreateEnum
 CREATE TYPE "AdminRole" AS ENUM ('SUPERADMIN', 'ADMIN');
 
 -- CreateEnum
@@ -22,6 +25,7 @@ CREATE TABLE "users" (
     "full_name" TEXT,
     "phone" TEXT NOT NULL,
     "hashed_password" TEXT NOT NULL,
+    "status" "userStatus" NOT NULL DEFAULT 'ACTIVE',
     "image_url" TEXT,
     "create_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "update_at" TIMESTAMPTZ(6) NOT NULL,

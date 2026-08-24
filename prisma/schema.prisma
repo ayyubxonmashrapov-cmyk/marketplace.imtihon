@@ -18,6 +18,7 @@ model User {
   fullName       String?  @map("full_name")
   phone          String   @unique
   hashedPassword String   @map("hashed_password")
+  status         userStatus @default(ACTIVE)
   imageUrl       String?  @map("image_url")
   createAt       DateTime @default(now()) @map("create_at") @db.Timestamptz(6)
   updateAt       DateTime @updatedAt @map("update_at") @db.Timestamptz(6)
@@ -28,6 +29,12 @@ model User {
   platformUserRole PlatformUserRole[]
 
   @@map("users")
+}
+
+enum userStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
 }
 
 model Admin {

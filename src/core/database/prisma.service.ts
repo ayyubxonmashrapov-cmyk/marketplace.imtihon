@@ -2,7 +2,7 @@ import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from "@nestjs/commo
 import { PrismaPg } from "@prisma/adapter-pg";
 import { env } from "../config";
 import { PrismaClient } from "../../../generated/prisma/client";
-import { AdminRoles } from "../../common/enum/admin-roles";
+import { AdminRoles } from "../../common/enum";
 import { Crypt } from "../../infrastructure/lib/Crypt";
 
 @Injectable()
@@ -48,6 +48,13 @@ export class PrismaService
                     role : AdminRoles.SUPERADMIN
                 }
             })
+
+            await this.platformUserRole.create({
+                data : {
+                    userId : user.id,
+                    roleCode : AdminRoles.SUPERADMIN
+                }
+            });
 
             console.log('Superadmin is created')
         }
