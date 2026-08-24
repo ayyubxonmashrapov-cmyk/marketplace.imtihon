@@ -9,6 +9,7 @@ import { AdminRoles } from "../../common/enum";
 import { Token } from "../../infrastructure/lib/Token";
 import { Response } from 'express'
 import { env } from "../../core/config";
+import { ISuccess } from "../../common/interface/ISeccess.interface";
 
 @Injectable()
 export class AdminService {
@@ -54,7 +55,7 @@ export class AdminService {
         return successRes(user, 201)    // to controleer 
     }
 
-    async signIn(dto: SignInDto, res : Response) {
+    async signIn(dto: SignInDto, res : Response): Promise<ISuccess> {
         const password = dto.password;
         let phone1 = dto.phone;
 
@@ -85,11 +86,9 @@ export class AdminService {
             maxAge : parseInt(env.TOKEN.REFRESH_TIME ) * 24 * 60 * 60 * 1000 
         });
         
-        return {
-            statusCode : 201,
-            data : {
-                accessToken
-            }
-        }
+        return successRes({
+            data : { refreshToken },
+            statusCode : 201
+        })
     }
 }
